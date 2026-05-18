@@ -75,11 +75,10 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-// ── HEALTH CHECK ──────────────────────────────────────
-app.use(express.static(path.join(__dirname)));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// ── HEALTH CHECK ────────────────────────────────────
+app.use(express.static(__dirname));
+app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
 app.get('/health', (req, res) => res.json({ status: 'TaskFlow API running ✅' }));
-
 // ── AUTH ROUTES ───────────────────────────────────────
 app.post('/api/auth/signup', async (req, res) => {
   try {
