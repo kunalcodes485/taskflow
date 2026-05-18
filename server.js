@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -75,7 +76,9 @@ const adminOnly = (req, res, next) => {
 };
 
 // ── HEALTH CHECK ──────────────────────────────────────
-app.get('/', (req, res) => res.json({ status: 'TaskFlow API running ✅' }));
+app.use(express.static(path.join(__dirname)));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/health', (req, res) => res.json({ status: 'TaskFlow API running ✅' }));
 
 // ── AUTH ROUTES ───────────────────────────────────────
 app.post('/api/auth/signup', async (req, res) => {
