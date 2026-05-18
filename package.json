@@ -1,0 +1,12 @@
+{
+  "name": "taskflow-team-task-manager",
+  "version": "1.0.0",
+  "description": "Full-stack Team Task Manager — Ethara.AI Assignment",
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "setup": "cd backend && npm install",
+    "dev": "cd backend && npm run dev",
+    "start": "cd backend && npm start"
+  }
+}
