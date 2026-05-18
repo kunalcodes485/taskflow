@@ -3,8 +3,8 @@
   Full-Stack Assignment | Ethara.AI
 =====================================
 
-LIVE URL:     https://your-app.railway.app
-GITHUB REPO:  https://github.com/YOUR_USERNAME/taskflow
+LIVE URL:    LIVE URL:     https://taskflow-production-ac66.up.railway.app 
+GITHUB REPO:  https://github.com/kunalcodes486/taskflow
 TECH STACK:   Node.js + Express + PostgreSQL (Sequelize) + Vanilla JS
 
 --------------------------------------
