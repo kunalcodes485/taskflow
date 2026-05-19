@@ -189,6 +189,6 @@ VALIDATIONS IMPLEMENTED
 --------------------------------------
 CONTACT
 --------------------------------------
-Submitted by: [Your Name]
-Email:        [Your Email]
+Submitted by: Kunal Gaikwad 
+Email:        kunalgaikwad1009@gmail.com 
 Date:         May 2025
