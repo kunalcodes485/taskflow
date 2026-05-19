@@ -112,8 +112,7 @@ LOCAL SETUP
 Prerequisites: Node.js 18+, PostgreSQL
 
 1. Clone the repo:
-   git clone https://github.com/YOUR_USERNAME/taskflow.git
-   cd taskflow/backend
+   git clone https://github.com/kunalcodes485/taskflow/tree/main
 
 2. Install dependencies:
    npm install
