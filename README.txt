@@ -132,7 +132,7 @@ RAILWAY DEPLOYMENT (step-by-step)
 --------------------------------------
 1. Push code to GitHub
 
-2. Go to https://railway.app → New Project → Deploy from GitHub
+2. Go to https://taskflow-production-ac66.up.railway.app → New Project → Deploy from GitHub
 
 3. Select your repo → Deploy backend folder
 
