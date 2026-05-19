@@ -287,6 +287,24 @@ textarea{resize:vertical;min-height:70px}
 .admin-nav{display:none}
 body.role-admin .admin-nav{display:flex}
 
+/* ── COMMENTS ────────────────────────────────── */
+.comments-list{display:flex;flex-direction:column;gap:12px;max-height:320px;overflow-y:auto;margin-bottom:16px;padding-right:4px}
+.comments-list::-webkit-scrollbar{width:4px}
+.comments-list::-webkit-scrollbar-track{background:var(--surface2)}
+.comments-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.comment-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;animation:slideIn .2s ease}
+.comment-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.comment-author-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,rgba(124,109,255,.3),rgba(124,109,255,.1));color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.comment-author{font-size:12px;font-weight:600;color:var(--text)}
+.comment-time{font-size:10px;color:var(--text3);margin-left:auto}
+.comment-body{font-size:13px;color:var(--text2);line-height:1.5}
+.comment-input-row{display:flex;gap:8px;align-items:flex-end}
+.comment-input-row textarea{flex:1;min-height:60px;font-size:13px;resize:none}
+.comment-send-btn{padding:10px 16px;background:linear-gradient(135deg,var(--accent),#9d8fff);border:none;border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s;align-self:flex-end}
+.comment-send-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(124,109,255,.3)}
+.comment-send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.no-comments{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+
 /* MOBILE */
 .mobile-header{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--surface);border-bottom:1px solid var(--border);z-index:99;align-items:center;padding:0 16px;gap:12px}
 .hamburger{background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px}
@@ -332,11 +350,9 @@ body.role-admin .admin-nav{display:flex}
       <div class="form-group"><label>Full Name</label><input type="text" id="s-name" placeholder="Jane Smith"></div>
       <div class="form-group"><label>Email</label><input type="email" id="s-email" placeholder="you@example.com"></div>
       <div class="form-group"><label>Password</label><input type="password" id="s-pass" placeholder="Min 6 characters"></div>
-      <div class="form-group"><label>Role</label>
-        <div class="role-selector">
-          <div class="role-btn active" id="rb-member" onclick="selectRole('Member')">👤 Member</div>
-          <div class="role-btn" id="rb-admin" onclick="selectRole('Admin')">🛡️ Admin</div>
-        </div>
+      <div class="form-group" style="background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">👤</span>
+        <span style="font-size:12px;color:var(--accent3)">You will join as a <strong>Member</strong>. Contact admin for admin access.</span>
       </div>
       <div id="s-err" class="error-msg"></div>
       <button class="btn-primary" id="s-btn" onclick="doSignup()">Create Account →</button>
@@ -524,6 +540,24 @@ body.role-admin .admin-nav{display:flex}
   </div>
 </div>
 
+<!-- COMMENTS MODAL -->
+<div class="modal-overlay" id="comments-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title">💬 Comments — <span id="cm-task-title" style="color:var(--accent);font-size:15px"></span></div>
+    <div class="comments-list" id="comments-list">
+      <div class="loading"><span class="spinner"></span>Loading comments…</div>
+    </div>
+    <div class="comment-input-row">
+      <textarea id="cm-text" placeholder="Write a comment…"></textarea>
+      <button class="comment-send-btn" id="cm-send" onclick="postComment()">Send →</button>
+    </div>
+    <div id="cm-err" class="error-msg" style="margin-top:8px"></div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-cancel" onclick="closeModal('comments-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script>
@@ -569,7 +603,7 @@ async function doSignup() {
   const name=v('s-name'), email=v('s-email'), pass=v('s-pass');
   document.getElementById('s-err').textContent='';
   setBtnLoading('s-btn',true,'Create Account →');
-  try { const d=await api('/auth/signup','POST',{name,email,password:pass,role:selectedRole}); enterApp(d.token,d.user); }
+  try { const d=await api('/auth/signup','POST',{name,email,password:pass,role:'Member'}); enterApp(d.token,d.user); }
   catch(e){ document.getElementById('s-err').textContent='❌ '+e.message; }
   finally { setBtnLoading('s-btn',false,'Create Account →'); }
 }
@@ -590,7 +624,7 @@ function enterApp(tok, u) {
   const rb=document.getElementById('sb-role-badge');
   rb.textContent=u.role; rb.className='user-role-badge '+u.role.toLowerCase();
   const hrs=new Date().getHours();
-  const greet=hrs<12?'Good morning':'hrs<17?'Good afternoon':'Good evening';
+  const greet=hrs<12?'Good morning':hrs<17?'Good afternoon':'Good evening';
   document.getElementById('dash-title').textContent='Dashboard';
   document.getElementById('dash-greet').textContent=greet+', '+u.name.split(' ')[0]+'! 👋';
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -631,7 +665,8 @@ function closeSidebar(){document.getElementById('sidebar').classList.remove('ope
 async function loadDashboard() {
   try {
     const [stats,tasks,projs]=await Promise.all([api('/tasks/dashboard'),api('/tasks'),api('/projects')]);
-    allTasks=tasks; allProjects=projs;
+    allTasks = user?.role==='Admin' ? tasks : tasks.filter(t=>t.assigneeId===user?.id);
+    allProjects=projs;
     document.getElementById('st-total').textContent=stats.total;
     document.getElementById('st-todo').textContent=stats.todo;
     document.getElementById('st-ip').textContent=stats.inProgress;
@@ -679,7 +714,9 @@ async function loadTasks() {
   document.getElementById('tasks-body').innerHTML='<div class="loading"><span class="spinner"></span>Loading tasks…</div>';
   try {
     const [tasks,projs]=await Promise.all([api('/tasks'),api('/projects')]);
-    allTasks=tasks; allProjects=projs;
+    // Members only see tasks assigned to them
+    allTasks = user?.role==='Admin' ? tasks : tasks.filter(t=>t.assigneeId===user?.id);
+    allProjects=projs;
     const pf=document.getElementById('t-fproject');
     const cur=pf.value;
     pf.innerHTML='<option value="">All Projects</option>'+projs.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
@@ -815,9 +852,13 @@ function taskRowHtml(t) {
     ?`<div class="actions">
         <button class="icon-btn complete" onclick="quickComplete('${t.id}')" title="Mark Done">✅</button>
         <button class="icon-btn edit" onclick="openTaskModal('${t.id}')" title="Edit">✏️</button>
+        <button class="icon-btn" onclick="openComments('${t.id}','${t.title.replace(/'/g,"&#39;")}')" title="Comments">💬</button>
         <button class="icon-btn" onclick="deleteTask('${t.id}')" title="Delete">🗑️</button>
       </div>`
-    :`<div class="actions"><button class="icon-btn edit" onclick="openStatusModal('${t.id}','${t.status}')" title="Update Status">✏️</button></div>`;
+    :`<div class="actions">
+        <button class="icon-btn edit" onclick="openStatusModal('${t.id}','${t.status}')" title="Update Status">✏️</button>
+        <button class="icon-btn" onclick="openComments('${t.id}','${t.title.replace(/'/g,"&#39;")}')" title="Comments">💬</button>
+      </div>`;
   return `<div class="task-row${t.isOverdue?' is-overdue':''}">
     <div><div class="task-name-text">${t.title}</div><div class="task-sub">${t.assignee?.name||'—'}</div>${countdown}</div>
     <div class="col-hide" style="font-size:12px;color:var(--text2)">${t.Project?.name||'—'}</div>
@@ -905,6 +946,63 @@ async function deleteProject(id) {
   if(!confirm('Delete project and all its tasks?')) return;
   try { await api('/projects/'+id,'DELETE'); showToast('Project deleted.','info'); loadProjects(); }
   catch(e){ showToast(e.message,'error'); }
+}
+
+// ── COMMENTS ──────────────────────────────────────
+let activeCommentTaskId = null;
+
+async function openComments(taskId, taskTitle) {
+  activeCommentTaskId = taskId;
+  document.getElementById('cm-task-title').textContent = taskTitle;
+  document.getElementById('cm-text').value = '';
+  document.getElementById('cm-err').textContent = '';
+  document.getElementById('comments-modal').classList.add('open');
+  await loadComments();
+}
+
+async function loadComments() {
+  const list = document.getElementById('comments-list');
+  list.innerHTML = '<div class="loading"><span class="spinner"></span>Loading comments…</div>';
+  try {
+    const comments = await api('/tasks/' + activeCommentTaskId + '/comments');
+    if (!comments.length) {
+      list.innerHTML = '<div class="no-comments">💬 No comments yet. Be the first!</div>';
+      return;
+    }
+    list.innerHTML = comments.map(c => {
+      const init = c.author?.name ? c.author.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '?';
+      const time = new Date(c.createdAt).toLocaleString('en-IN', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      return `<div class="comment-item">
+        <div class="comment-meta">
+          <div class="comment-author-av">${init}</div>
+          <div class="comment-author">${c.author?.name || 'Unknown'}</div>
+          <div class="comment-time">${time}</div>
+        </div>
+        <div class="comment-body">${c.content}</div>
+      </div>`;
+    }).join('');
+    list.scrollTop = list.scrollHeight;
+  } catch(e) {
+    list.innerHTML = '<div class="no-comments">⚠️ Failed to load comments</div>';
+  }
+}
+
+async function postComment() {
+  const text = document.getElementById('cm-text').value.trim();
+  document.getElementById('cm-err').textContent = '';
+  if (!text) { document.getElementById('cm-err').textContent = '❌ Comment cannot be empty.'; return; }
+  const btn = document.getElementById('cm-send');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    await api('/tasks/' + activeCommentTaskId + '/comments', 'POST', { content: text });
+    document.getElementById('cm-text').value = '';
+    showToast('Comment posted! 💬', 'success');
+    await loadComments();
+  } catch(e) {
+    document.getElementById('cm-err').textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send →';
+  }
 }
 
 // ── UTILS ─────────────────────────────────────────
