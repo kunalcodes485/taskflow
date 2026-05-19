@@ -5,7 +5,7 @@
 
 LIVE URL:  https://taskflow-production-ac66.up.railway.app
 GITHUB REPO: https://github.com/kunalcodes485/taskflow/tree/main 
-TECH STACK:   Node.js + Express + PostgreSQL (Sequelize) + Vanilla JS
+TECH STACK:   Node.js + Express + PostgreSQL (Sequelize) + Vanilla JS + REST API 
 
 --------------------------------------
 PROJECT OVERVIEW
