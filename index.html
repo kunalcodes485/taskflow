@@ -852,12 +852,12 @@ function taskRowHtml(t) {
     ?`<div class="actions">
         <button class="icon-btn complete" onclick="quickComplete('${t.id}')" title="Mark Done">✅</button>
         <button class="icon-btn edit" onclick="openTaskModal('${t.id}')" title="Edit">✏️</button>
-        <button class="icon-btn" onclick="openComments('${t.id}','${t.title.replace(/'/g,"&#39;")}')" title="Comments">💬</button>
+        <button class="icon-btn" onclick="openComments('${t.id}',this)" data-title="${t.title}" title="Comments">💬</button>
         <button class="icon-btn" onclick="deleteTask('${t.id}')" title="Delete">🗑️</button>
       </div>`
     :`<div class="actions">
         <button class="icon-btn edit" onclick="openStatusModal('${t.id}','${t.status}')" title="Update Status">✏️</button>
-        <button class="icon-btn" onclick="openComments('${t.id}','${t.title.replace(/'/g,"&#39;")}')" title="Comments">💬</button>
+        <button class="icon-btn" onclick="openComments('${t.id}',this)" data-title="${t.title}" title="Comments">💬</button>
       </div>`;
   return `<div class="task-row${t.isOverdue?' is-overdue':''}">
     <div><div class="task-name-text">${t.title}</div><div class="task-sub">${t.assignee?.name||'—'}</div>${countdown}</div>
@@ -951,8 +951,9 @@ async function deleteProject(id) {
 // ── COMMENTS ──────────────────────────────────────
 let activeCommentTaskId = null;
 
-async function openComments(taskId, taskTitle) {
+async function openComments(taskId, btnEl) {
   activeCommentTaskId = taskId;
+  const taskTitle = typeof btnEl === 'string' ? btnEl : btnEl.getAttribute('data-title');
   document.getElementById('cm-task-title').textContent = taskTitle;
   document.getElementById('cm-text').value = '';
   document.getElementById('cm-err').textContent = '';
