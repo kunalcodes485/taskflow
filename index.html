@@ -436,10 +436,10 @@ body.role-admin .admin-nav{display:flex}
     <div class="page" id="page-tasks">
       <div class="page-header">
         <div class="page-title-wrap"><div class="page-title">All Tasks</div><div class="page-sub">Manage and track team tasks</div></div>
-        <button class="btn-sm" id="new-task-btn" onclick="openTaskModal()" style="display:none">+ New Task</button>
       </div>
       <div class="toolbar">
         <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="t-search" placeholder="Search tasks…" oninput="renderTasks()"></div>
+        <button class="btn-sm" id="new-task-btn" onclick="openTaskModal()" style="display:none;white-space:nowrap">+ New Task</button>
         <select class="filter-select" id="t-fstatus" onchange="renderTasks()"><option value="">All Status</option><option>Todo</option><option>In Progress</option><option>Done</option><option>Overdue</option></select>
         <select class="filter-select" id="t-fproject" onchange="renderTasks()"><option value="">All Projects</option></select>
         <select class="filter-select" id="t-fpriority" onchange="renderTasks()"><option value="">All Priority</option><option>High</option><option>Medium</option><option>Low</option></select>
@@ -454,10 +454,10 @@ body.role-admin .admin-nav{display:flex}
     <div class="page" id="page-projects">
       <div class="page-header">
         <div class="page-title-wrap"><div class="page-title">Projects</div><div class="page-sub">Manage your team's projects</div></div>
-        <button class="btn-sm" onclick="openProjModal()">+ New Project</button>
       </div>
       <div class="toolbar">
         <div class="search-box"><span class="search-icon">🔍</span><input type="text" id="p-search" placeholder="Search projects…" oninput="renderProjects()"></div>
+        <button class="btn-sm" onclick="openProjModal()" style="white-space:nowrap">+ New Project</button>
       </div>
       <div class="proj-grid" id="proj-grid"></div>
     </div>
