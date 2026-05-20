@@ -47,6 +47,13 @@ const Task = sequelize.define('Task', {
   createdById: { type: DataTypes.UUID },
 });
 
+const Comment = sequelize.define('Comment', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  content: { type: DataTypes.TEXT, allowNull: false },
+  taskId: { type: DataTypes.UUID, allowNull: false },
+  authorId: { type: DataTypes.UUID, allowNull: false },
+});
+
 // ── RELATIONSHIPS ─────────────────────────────────────
 Project.hasMany(Task, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 Task.belongsTo(Project, { foreignKey: 'projectId' });
@@ -56,6 +63,10 @@ User.hasMany(Task, { foreignKey: 'createdById', as: 'createdTasks' });
 Task.belongsTo(User, { foreignKey: 'createdById', as: 'creator' });
 User.hasMany(Project, { foreignKey: 'createdById' });
 Project.belongsTo(User, { foreignKey: 'createdById', as: 'creator' });
+Task.hasMany(Comment, { foreignKey: 'taskId', onDelete: 'CASCADE' });
+Comment.belongsTo(Task, { foreignKey: 'taskId' });
+User.hasMany(Comment, { foreignKey: 'authorId' });
+Comment.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
 // ── MIDDLEWARE ────────────────────────────────────────
 const auth = async (req, res, next) => {
@@ -249,6 +260,36 @@ app.delete('/api/tasks/:id', auth, adminOnly, async (req, res) => {
     if (!task) return res.status(404).json({ error: 'Not found' });
     await task.destroy();
     res.json({ message: 'Deleted' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── COMMENT ROUTES ───────────────────────────────────────
+app.get('/api/tasks/:id/comments', auth, async (req, res) => {
+  try {
+    const comments = await Comment.findAll({
+      where: { taskId: req.params.id },
+      include: [{ model: User, as: 'author', attributes: ['id', 'name', 'email'] }],
+      order: [['createdAt', 'ASC']]
+    });
+    res.json(comments);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/tasks/:id/comments', auth, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'Comment content is required' });
+    const task = await Task.findByPk(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+    const comment = await Comment.create({
+      content,
+      taskId: req.params.id,
+      authorId: req.user.id
+    });
+    const full = await Comment.findByPk(comment.id, {
+      include: [{ model: User, as: 'author', attributes: ['id', 'name', 'email'] }]
+    });
+    res.status(201).json(full);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
