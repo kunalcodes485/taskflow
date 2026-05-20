@@ -38,6 +38,14 @@ const Task = sequelize.define('Task', {
   createdById: { type: DataTypes.UUID, allowNull: false },
 }, { timestamps: true });
 
+// ─── COMMENT ──────────────────────────────────────────
+const Comment = sequelize.define('Comment', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  content: { type: DataTypes.TEXT, allowNull: false },
+  taskId: { type: DataTypes.UUID, allowNull: false },
+  authorId: { type: DataTypes.UUID, allowNull: false },
+}, { timestamps: true });
+
 // ─── RELATIONSHIPS ────────────────────────────────────
 Project.hasMany(Task, { foreignKey: 'projectId', onDelete: 'CASCADE' });
 Task.belongsTo(Project, { foreignKey: 'projectId' });
@@ -51,4 +59,10 @@ Task.belongsTo(User, { foreignKey: 'createdById', as: 'creator' });
 User.hasMany(Project, { foreignKey: 'createdById' });
 Project.belongsTo(User, { foreignKey: 'createdById', as: 'creator' });
 
-module.exports = { sequelize, User, Project, Task };
+// Comment relationships
+Task.hasMany(Comment, { foreignKey: 'taskId', onDelete: 'CASCADE' });
+Comment.belongsTo(Task, { foreignKey: 'taskId' });
+User.hasMany(Comment, { foreignKey: 'authorId' });
+Comment.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+
+module.exports = { sequelize, User, Project, Task, Comment };
