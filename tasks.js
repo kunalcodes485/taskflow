@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
-const { Task, Project, User } = require('../models');
+const { Task, Project, User, Comment } = require('../models');
 const { auth, adminOnly } = require('../middleware/auth');
 
 const taskIncludes = [
@@ -142,6 +142,41 @@ router.delete('/:id', auth, adminOnly, async (req, res) => {
     if (!task) return res.status(404).json({ error: 'Task not found' });
     await task.destroy();
     res.json({ message: 'Task deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/tasks/:id/comments
+router.get('/:id/comments', auth, async (req, res) => {
+  try {
+    const comments = await Comment.findAll({
+      where: { taskId: req.params.id },
+      include: [{ model: User, as: 'author', attributes: ['id', 'name', 'email'] }],
+      order: [['createdAt', 'ASC']]
+    });
+    res.json(comments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/tasks/:id/comments
+router.post('/:id/comments', auth, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'Comment content is required' });
+    const task = await Task.findByPk(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+    const comment = await Comment.create({
+      content,
+      taskId: req.params.id,
+      authorId: req.user.id
+    });
+    const full = await Comment.findByPk(comment.id, {
+      include: [{ model: User, as: 'author', attributes: ['id', 'name', 'email'] }]
+    });
+    res.status(201).json(full);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
